@@ -56,15 +56,40 @@ In the Firebase console, open Firestore → Rules and set something like:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /itineraries/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+    
+    // Match all itineraries
+    match /itineraries/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+    
+    // Optionally, allow create if user is authenticated and setting their own UID
+    match /itineraries/{docId} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
     }
   }
 }
+
 ```
 ### 5. Create a Google Cloud Service Account & Key
+There are two ways to provide authentication to Firestore from your Cloudflare Worker:
 
+---
+
+#### Option A: Using a Service Account (Recommended if you have a Google Cloud project with billing enabled)
+
+- In the [Google Cloud Console](https://console.cloud.google.com/), create a **Service Account** with Firestore access.
+- Generate a **JSON key** file for that service account.
+- From the JSON key, extract and set Wrangler secrets.
+
+#### Option B: Using Application Default Credentials (For quick testing or if you don’t have billing enabled)
+Make sure you have the Google Cloud SDK installed locally. [gcloud](https://cloud.google.com/sdk/docs/install)
+
+In the Google Cloud SDK shell, run:
+
+```gcloud auth application-default print-access-token```
+Copy the printed access token and set it as a Wrangler secret:
+
+``` wrangler secret put FIREBASE_ACCESS_TOKEN```
 
 ### 6. Set Up Cloudflare Worker
 - Install Wrangler (Cloudflare CLI):
