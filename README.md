@@ -27,11 +27,10 @@ It supports asynchronous processing — meaning you can start a job, then retrie
 
 Follow these steps to run this project in your own environment.
 
----
 
 ### 1. Clone the Repository
 
-```bash
+
 git clone https://github.com/<your-username>/<your-repo>.git
 cd <your-repo>
 ### 2. Install Dependencies
